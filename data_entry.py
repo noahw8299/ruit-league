@@ -7,6 +7,103 @@ import boto3
 def show_data_entry():
     st.title("Ruit League Data Entry")
 
+    # data_entry()
+    new_data_entry()
+
+def new_data_entry():
+
+    # teams = {
+    #     "Splash Brothers": ["Noah", "Gabe"],
+    #     "Gang Green": ["Nick", "Ravi"],
+    #     "Goon Squad": ["Andy", "Keshav"],
+    #     "Bye Week": ["Mitch", "Willie"],
+    #     "Ritesh/Caden": ["Ritesh", "Caden"],
+    #     "Ben/Demir": ["Ben", "Demir"],
+    #     "Will/Brandon": ["Will", "Brandon"],
+    #     "Jose/David": ["Jose", "David"]
+    # }
+
+    # team_df = pd.DataFrame(teams.items(), columns=['Team', 'players'])
+    # team_df[['Player 1', 'Player 2']] = pd.DataFrame(team_df['players'].tolist(), index=team_df.index)
+    # team_df = team_df.drop('players', axis=1)
+
+    # st.write(team_df)
+
+    team_data = pd.read_csv("team_data.csv")
+    st.write(team_data)
+
+    # with col1:
+    #     home_selection = st.selectbox("Home", teams)
+
+    # with col2:
+    #     away_selection = st.selectbox("Away", teams)
+    col1, col2 = st.columns(2)
+
+    dict_data = {}
+
+    dict_data["Date"] = datetime.datetime.now().strftime("%m/%d/%Y %H:%M")
+
+    with col1:
+        team1 = st.selectbox("Team 1", team_data['Team'])
+    with col2:
+        team2 = st.selectbox("Team 2", team_data[team_data['Team'] != team1]['Team'])
+
+    team_list = [team1, team2]
+
+    data = []
+
+    for i, team in enumerate(team_list):
+        team = team.strip()
+        data.append(team)
+        with col1:
+            player_1 = team_data.loc[team_data['Team'] == team1][f"Player {i + 1}"].iloc[0]
+            player1_cups = st.number_input(f"Enter the number of cups hit by {player_1}:", value=0, step=1, key=f"{team}_player1_cups")        
+        with col2:
+            player_2 = team_data.loc[team_data['Team'] == team2][f"Player {i + 1}"].iloc[0]   
+            player2_cups = st.number_input(f"Enter the number of cups hit by {player_2}:", value=0, step=1, key=f"{team}_player2_cups")
+        
+        data.append(player_1)
+        data.append(player1_cups)
+        data.append(player_2)
+        data.append(player2_cups)
+        
+        dict_data[f"Team {i + 1}"] = team
+        dict_data[f"Player {i * 2 + 1}"] = player_1
+        dict_data[f"Player {i * 2 + 1} Cups"] = player1_cups
+        dict_data[f"Player {i * 2 + 2}"] = player_2
+        dict_data[f"Player {i * 2 + 2} Cups"] = player2_cups
+
+    # track additional data points
+    ot = st.checkbox("Was there overtime?")
+    # final_score = st.text_input("Enter the final score (e.g. 1 - 0)")
+    final_cup = st.text_input("Who hit the final cup?")
+
+    if st.button("Submit"):
+        dict_data["Overtime"] = ot
+
+        if "Player 3 Cups" not in dict_data:
+            st.error("Must enter 2 teams")
+        elif calc_final_score(dict_data) == "error":
+            st.error("Incorrect score total. Please check inputed stats")
+        else: 
+            dict_data["Final Score"] = calc_final_score(dict_data)
+            dict_data["Final Cup"] = final_cup
+
+            new_df = pd.DataFrame(dict_data, index=[0])
+
+            # get existing data
+            df = pd.read_csv("ruit_league_data.csv")
+
+            df = pd.concat([df, new_df], ignore_index=True)
+
+            # save the data to a file
+            df.to_csv("ruit_league_data.csv", index=False)
+
+            # display a success message
+            st.success("Data submitted successfully!")
+
+
+def data_entry():
     dict_data = {}
 
     dict_data["Date"] = datetime.datetime.now().strftime("%m/%d/%Y %H:%M")
