@@ -30,7 +30,7 @@ def new_data_entry():
     # st.write(team_df)
 
     team_data = pd.read_csv("team_data.csv")
-    st.write(team_data)
+    # st.write(team_data)
 
     # with col1:
     #     home_selection = st.selectbox("Home", teams)
