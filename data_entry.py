@@ -62,7 +62,7 @@ def data_entry():
         players = list(team_data[team_data['Team'] == team1][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", [f"{players[0]}, {players[1]} (Iced the game)"])
         final_cup = final_cup.replace("(Iced the game)", "").strip()
-        st.write(final_cup)
+        st.write(team_data[team_data['Team'] == team1])
     elif final_score[0] == "0" and final_score[1] is not "*":
         players = list(team_data[team_data['Team'] == team1][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", players)
@@ -125,9 +125,6 @@ def calc_final_score(dict_data):
                 if team2_score < 0:
                     team2_score = "0*"
                 return f"{team1_score} - {team2_score}"
-
-def find_winner():
-    return
 
 def organize_data(dict_data):
     new_order = ["Date", "Team 1", "Player 1", "Player 1 Cups", "Player 2", 

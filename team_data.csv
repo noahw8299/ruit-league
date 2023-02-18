@@ -1,9 +1,9 @@
-Team,Player 1,Player 2
-Splash Brothers,Noah,Gabe
-Gang Green,Nick,Ravi
-Goon Squad,Andy,Keshav
-Bye Week,Mitch,Willie
-Ritesh/Caden,Ritesh,Caden
-Ben/Demir,Ben,Demir
-Will/Brandon,Will,Brandon
-Jose/David,Jose,David
+Team,Player 1,Player 2,Win,Loss,Win Rate
+Splash Brothers,Noah,Gabe,2,1,66.7%
+Gang Green,Nick,Ravi,0,2,0.0%
+Goon Squad,Andy,Keshav,1,0,100.0%
+Bye Week,Mitch,Willie,1,1,50.0%
+Ritesh/Caden,Ritesh,Caden,3,0,100.0%
+Ben/Demir,Ben,Demir,0,1,0.0%
+Will/Brandon,Will,Brandon,0,1,0.0%
+Jose/David,Jose,David,0,2,0.0%

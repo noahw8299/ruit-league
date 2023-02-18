@@ -6,59 +6,27 @@ import seaborn as sns
 def show_explore_page():
     # load the data from the file
     df = pd.read_csv('ruit_league_data.csv')
+    team_data = pd.read_csv('team_data.csv')
+    team_data = update_team_record(df, team_data)
+    player_stats = summarize_player_stats(df)
+
+    sorted_team_data = team_data.sort_values(by=['Win', 'Loss'], ascending=[False, True]).reset_index()
 
     st.write("Game Log:", df)
 
-    player_stats = summarize_player_stats(df)
-    team_stats = summarize_player_stats(df)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("Team Stats:", sorted_team_data)
+    with col2:
+        st.write("Player Stats", player_stats)
 
     # Set the style and color palette
     sns.set_style('darkgrid')
-    # sns.set_palette('dark', color_codes=True)
 
-    col1, col2 = st.columns(2)
-
-    # with col1:
-        # Create bar plot of cups hit for each player
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='Name', y='Total Cups', data=player_stats, ax=ax)
-    ax.set_title('Total Cups Hit by Player', color='white')
-    ax.set_xlabel('Player', color='white')
-    ax.set_ylabel('Total Cups', color='white')
-    plt.xticks(rotation=90, color='white')
-
-    # Add labels to the top of the bars
-    for p in ax.patches:
-        ax.annotate(str(p.get_height()), (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', fontsize=11, color='black', xytext=(0, 5),
-                    textcoords='offset points')
-    # Change the background color of the plot
-    fig.patch.set_facecolor('black')
-    # Display plot in Streamlit app
-    st.pyplot(fig)
-
-    # with col2:
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='Name', y='Cups/Game', data=player_stats, ax=ax)
-    ax.set_title('Average Cups per Game', color='white')
-    ax.set_xlabel('Player', color='white')
-    ax.set_ylabel('Cups per Game', color='white')
-    plt.xticks(rotation=90, color='white')
-
-    # Add labels to the top of the bars
-    for p in ax.patches:
-        ax.annotate('{:.1f}'.format(p.get_height()), (p.get_x() + p.get_width() / 2., p.get_height()),
-                    ha='center', va='center', fontsize=11, color='black', xytext=(0, 5),
-                    textcoords='offset points')
-
-
-    # Change the background color of the plot
-    fig.patch.set_facecolor('black')
-
-    # Display plot in Streamlit app
-    st.pyplot(fig)
-
-
+    display_graph(player_stats, 'Name', 'Total Cups', 'Total Cups Hit by Player', 'Player', 'Total Cups')
+    display_graph(player_stats, 'Name', 'Cups/Game', 'Average Cups per Game', 'Player', 'Cups per Game')
+    display_graph(player_stats, 'Name', 'Final Cups', 'Total Final Cups Hit', 'Player', 'Final Cups')
 
 
 def summarize_player_stats(df):
@@ -93,9 +61,54 @@ def summarize_player_stats(df):
     new_df = new_df[['Name', 'Total Cups', 'Num Games']]
     new_df['Cups/Game'] = new_df['Total Cups'] / new_df['Num Games']
 
-    
+    cup_counts = df['Final Cup'].str.split(',', expand=True).stack().str.strip().value_counts()
+    new_df['Final Cups'] = new_df['Name'].apply(lambda x: cup_counts.get(x, 0))
+
     return new_df  
 
-def summarize_team_stats(df):
-    team_names = set(df[['Team 1', 'Team 2']].values.flatten())
-    st.write(team_names)
+def update_team_record(df, team_data):
+    team_data['Win'] = 0
+    team_data["Loss"] = 0
+    for index, row in df.iterrows():
+        final_score = df.iloc[index]['Final Score']
+        if final_score[-1] == "*":
+            winner = df.iloc[index]['Team 2']
+            loser = df.iloc[index]['Team 1']
+            team_data.loc[team_data['Team'] == winner, 'Win'] += 1
+            team_data.loc[team_data['Team'] == loser, 'Loss'] += 1
+        elif final_score[1] == "*" or final_score[0] == "0":
+            winner = df.iloc[index]['Team 1']
+            loser = df.iloc[index]['Team 2']
+            team_data.loc[team_data['Team'] == winner, 'Win'] += 1
+            team_data.loc[team_data['Team'] == loser, 'Loss'] += 1
+        else:
+            winner = df.iloc[index]['Team 2']
+            loser = df.iloc[index]['Team 1']
+            team_data.loc[team_data['Team'] == winner, 'Win'] += 1
+            team_data.loc[team_data['Team'] == loser, 'Loss'] += 1
+
+    team_data['Win Rate'] = (team_data['Win'] / (team_data['Win'] + team_data['Loss']) * 100).apply(lambda x: '{:.1f}%'.format(x))
+
+    team_data.to_csv("team_data.csv", index=False)
+    return team_data
+
+def display_graph(data, x, y, title, xaxis, yaxis):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=x, y=y, data=data, ax=ax)
+    ax.set_title(title, color='white')
+    ax.set_xlabel(xaxis, color='white')
+    ax.set_ylabel(yaxis, color='white')
+    plt.xticks(rotation=90, color='white')
+
+    # Add labels to the top of the bars
+    for p in ax.patches:
+        ax.annotate('{:.1f}'.format(p.get_height()), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=11, color='black', xytext=(0, 5),
+                    textcoords='offset points')
+
+
+    # Change the background color of the plot
+    fig.patch.set_facecolor('black')
+
+    # Display plot in Streamlit app
+    st.pyplot(fig)
