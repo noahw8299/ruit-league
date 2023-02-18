@@ -62,15 +62,13 @@ def data_entry():
         players = list(team_data[team_data['Team'] == team1][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", [f"{players[0]}, {players[1]} (Iced the game)"])
         final_cup = final_cup.replace("(Iced the game)", "").strip()
-        st.write(team_data[team_data['Team'] == team1])
-    elif final_score[0] == "0" and final_score[1] is not "*":
+    elif final_score[0] == "0" and final_score[-1] is not "*":
         players = list(team_data[team_data['Team'] == team1][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", players)
     elif final_score[-1] == "*":
         players = list(team_data[team_data['Team'] == team2][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", [f"{players[0]}, {players[1]} (Iced the game)"])
         final_cup = final_cup.replace("(Iced the game)", "").strip()
-        st.write(final_cup)
     elif final_score[-1] == "0":
         players = list(team_data[team_data['Team'] == team2][['Player 1', 'Player 2']].iloc[0])
         final_cup = st.selectbox("Who hit the final cup?", players)
@@ -100,8 +98,12 @@ def data_entry():
             st.success("Data submitted successfully!")
 
 def calc_final_score(dict_data):
-    team1_score = 12 - (dict_data["Player 1 Cups"] + dict_data["Player 2 Cups"])
-    team2_score = 12 - (dict_data["Player 3 Cups"] + dict_data["Player 4 Cups"])
+    if dict_data["Overtime"] == False:
+        team1_score = 12 - (dict_data["Player 1 Cups"] + dict_data["Player 2 Cups"])
+        team2_score = 12 - (dict_data["Player 3 Cups"] + dict_data["Player 4 Cups"])
+    else:
+        team1_score = 16 - (dict_data["Player 1 Cups"] + dict_data["Player 2 Cups"])
+        team2_score = 16 - (dict_data["Player 3 Cups"] + dict_data["Player 4 Cups"])
 
     if team1_score > 0 and team2_score > 0:
         return "error"
@@ -112,19 +114,18 @@ def calc_final_score(dict_data):
     elif team1_score <= -2 or team2_score <= -2:
         return "error"
     else:
-        if dict_data["Overtime"] == False:
-            if team1_score >= 0 and team2_score >=0:
-                return f"{team1_score} - {team2_score}"
-            elif team1_score < 0 and team2_score == 0:
-                return "0* - 0"
-            elif team1_score == 0 and team2_score < 0:
-                return "0 - 0*"
-            else:
-                if team1_score < 0:
-                    team1_score = "0*"
-                if team2_score < 0:
-                    team2_score = "0*"
-                return f"{team1_score} - {team2_score}"
+        if team1_score >= 0 and team2_score >=0:
+            return f"{team1_score} - {team2_score}"
+        elif team1_score < 0 and team2_score == 0:
+            return "0* - 0"
+        elif team1_score == 0 and team2_score < 0:
+            return "0 - 0*"
+        else:
+            if team1_score < 0:
+                team1_score = "0*"
+            if team2_score < 0:
+                team2_score = "0*"
+            return f"{team1_score} - {team2_score}"
 
 def organize_data(dict_data):
     new_order = ["Date", "Team 1", "Player 1", "Player 1 Cups", "Player 2", 
