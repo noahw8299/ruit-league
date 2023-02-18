@@ -7,7 +7,7 @@ def show_explore_page():
     # load the data from the file
     df = pd.read_csv('ruit_league_data.csv')
 
-    st.write("Player Data:", df)
+    st.write("Game Log:", df)
 
     player_stats = summarize_player_stats(df)
     team_stats = summarize_player_stats(df)
@@ -40,7 +40,7 @@ def show_explore_page():
     # with col2:
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x='Name', y='Cups/Game', data=player_stats, ax=ax)
-    ax.set_title('Average Cup Hit by Player per Game', color='white')
+    ax.set_title('Average Cups per Game', color='white')
     ax.set_xlabel('Player', color='white')
     ax.set_ylabel('Cups per Game', color='white')
     plt.xticks(rotation=90, color='white')
