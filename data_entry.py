@@ -56,7 +56,8 @@ def data_entry():
 
     # final_score = st.text_input("Enter the final score (e.g. 1 - 0)")
 
-    final_score = calc_final_score(dict_data)
+    score = calc_final_score(dict_data)
+    final_score = score[2]
 
     if final_score[0] == "0" and final_score[1] is "*":
         players = list(team_data[team_data['Team'] == team1][['Player 1', 'Player 2']].iloc[0])
@@ -115,17 +116,17 @@ def calc_final_score(dict_data):
         return "error"
     else:
         if team1_score >= 0 and team2_score >=0:
-            return f"{team1_score} - {team2_score}"
+            return [team1_score, team2_score, f"{team1_score} - {team2_score}"]
         elif team1_score < 0 and team2_score == 0:
-            return "0* - 0"
+            return [team1_score, team2_score, "0* - 0"]
         elif team1_score == 0 and team2_score < 0:
-            return "0 - 0*"
+            return [team1_score, team2_score, "0 - 0*"]
         else:
             if team1_score < 0:
                 team1_score = "0*"
             if team2_score < 0:
                 team2_score = "0*"
-            return f"{team1_score} - {team2_score}"
+            return [team1_score, team2_score, f"{team1_score} - {team2_score}"]
 
 def organize_data(dict_data):
     new_order = ["Date", "Team 1", "Player 1", "Player 1 Cups", "Player 2", 

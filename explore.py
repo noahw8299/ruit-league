@@ -1,3 +1,4 @@
+from copyreg import dispatch_table
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ def show_explore_page():
     df = pd.read_csv('ruit_league_data.csv')
     team_data = pd.read_csv('team_data.csv')
     team_data = update_team_record(df, team_data)
-    player_stats = summarize_player_stats(df)
+    player_stats = summarize_player_stats(df, team_data)
 
     sorted_team_data = team_data.sort_values(by=['Win', 'Loss'], ascending=[False, True]).reset_index()
 
@@ -24,12 +25,12 @@ def show_explore_page():
     # Set the style and color palette
     sns.set_style('darkgrid')
 
-    display_graph(player_stats, 'Name', 'Total Cups', 'Total Cups Hit by Player', 'Player', 'Total Cups')
-    display_graph(player_stats, 'Name', 'Cups/Game', 'Average Cups per Game', 'Player', 'Cups per Game')
-    display_graph(player_stats, 'Name', 'Final Cups', 'Total Final Cups Hit', 'Player', 'Final Cups')
+    display_player_stats(player_stats, 'Name', 'Total Cups', 'Total Cups Hit by Player', 'Player', 'Total Cups')
+    display_player_stats(player_stats, 'Name', 'Cups/Game', 'Average Cups per Game', 'Player', 'Cups per Game')
+    display_player_stats(player_stats, 'Name', 'Final Cups', 'Total Final Cups Hit', 'Player', 'Final Cups')
 
 
-def summarize_player_stats(df):
+def summarize_player_stats(df, team_data):
     # First, create a list of all player names in the DataFrame
     player_names = set(df[['Player 1', 'Player 2', 'Player 3', 'Player 4']].values.flatten())
 
@@ -60,11 +61,22 @@ def summarize_player_stats(df):
     new_df.rename(columns={'index': 'Name'}, inplace=True)
     new_df = new_df[['Name', 'Total Cups', 'Num Games']]
     new_df['Cups/Game'] = new_df['Total Cups'] / new_df['Num Games']
+    new_df['Team'] = None
+    new_df = get_team_name(new_df, team_data)
 
     cup_counts = df['Final Cup'].str.split(',', expand=True).stack().str.strip().value_counts()
     new_df['Final Cups'] = new_df['Name'].apply(lambda x: cup_counts.get(x, 0))
 
-    return new_df  
+    return new_df 
+
+def get_team_name(df, team_data):
+    for index, row in df.iterrows():
+        name = row['Name']
+        for i, r in team_data.iterrows():
+            if name == r['Player 1'] or name == r['Player 2']:
+                df.at[index, 'Team'] = r['Team']
+                break
+    return df
 
 def update_team_record(df, team_data):
     team_data['Win'] = 0
@@ -92,9 +104,9 @@ def update_team_record(df, team_data):
     team_data.to_csv("team_data.csv", index=False)
     return team_data
 
-def display_graph(data, x, y, title, xaxis, yaxis):
+def display_player_stats(data, x, y, title, xaxis, yaxis):
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x=x, y=y, data=data, ax=ax)
+    sns.barplot(x=x, y=y, data=data, ax=ax, order=data.sort_values(by=y, ascending=False)[x])
     ax.set_title(title, color='white')
     ax.set_xlabel(xaxis, color='white')
     ax.set_ylabel(yaxis, color='white')
@@ -106,9 +118,10 @@ def display_graph(data, x, y, title, xaxis, yaxis):
                     ha='center', va='center', fontsize=11, color='black', xytext=(0, 5),
                     textcoords='offset points')
 
-
     # Change the background color of the plot
     fig.patch.set_facecolor('black')
 
     # Display plot in Streamlit app
     st.pyplot(fig)
+
+# def cal_winning_margin()
