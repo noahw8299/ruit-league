@@ -1,13 +1,13 @@
-##ruit-league
+# ruit-league
 Welcome to ruit-league, a web application built for the Tufts Theta Chi Fraternity for the 2023 season. This web application is hosted on AWS services and is accessible by the following IP: http://35.172.109.115:8501/. It serves as a hub to input game stats as they happen and view player and team statistics over the season.
 
-#Features
+## Features
 Input game stats as they happen
 View player and team statistics over the season
 Libraries Used
 This project uses the following libraries:
 
-#streamlit
+## streamlit
 pandas
 matplotlib
 seaborn
@@ -15,10 +15,10 @@ datetime
 Usage
 To use the application, simply visit the following IP: http://35.172.109.115:8501/ and begin exploring the features. The application is built using Python and is hosted on AWS services.
 
-#Contributing
+## Contributing
 If you wish to contribute to the project, please contact the developers for information on how to get involved.
 
-#Dependencies
+## Dependencies
 Python 3.7 or above
 Getting Started
 To get started with the project, you will need to have Python 3.7 or above installed on your local machine. Once you have Python installed, you can clone the repository and run the application on your local machine. To run the application, simply execute the app.py script.
