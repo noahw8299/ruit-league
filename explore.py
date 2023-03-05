@@ -10,7 +10,7 @@ def show_explore_page():
     team_data = update_team_record(df, team_data)
     player_stats = summarize_player_stats(df, team_data)
 
-    sorted_team_data = team_data.sort_values(by=['Win', 'Loss'], ascending=[False, True]).reset_index()
+    sorted_team_data = team_data.sort_values(by=['Win', 'Loss'], ascending=[False, True])
 
     st.write("Game Log:", df)
 
@@ -105,9 +105,15 @@ def update_team_record(df, team_data):
             team_data.loc[team_data['Team'] == loser, 'Loss'] += 1
 
     team_data['Win Rate'] = (team_data['Win'] / (team_data['Win'] + team_data['Loss']) * 100).apply(lambda x: '{:.1f}%'.format(x))
+    team_data = team_data.sort_values(by=['Win', 'Loss'], ascending=[False, True]).reset_index(drop=True)
 
     team_data.to_csv("team_data.csv", index=False)
     return team_data
+
+def my_sort_key(df):
+    # Define your own logic for sorting the dataframe
+    # For example, sorting by the difference between Wins and Losses
+    return df['Win'] - df['Loss']
 
 def display_stats(data, x, y, title, xaxis, yaxis):
     fig, ax = plt.subplots(figsize=(10, 6))
