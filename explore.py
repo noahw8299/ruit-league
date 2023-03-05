@@ -24,9 +24,10 @@ def show_explore_page():
     # Set the style and color palette
     sns.set_style('darkgrid')
 
-    display_player_stats(player_stats, 'Name', 'Total Cups', 'Total Cups Hit by Player', 'Player', 'Total Cups')
-    display_player_stats(player_stats, 'Name', 'Cups/Game', 'Average Cups per Game', 'Player', 'Cups per Game')
-    display_player_stats(player_stats, 'Name', 'Final Cups', 'Total Final Cups Hit', 'Player', 'Final Cups')
+    display_stats(player_stats, 'Name', 'Total Cups', 'Total Cups Hit by Player', 'Player', 'Total Cups')
+    display_stats(player_stats, 'Name', 'Cups/Game', 'Average Cups per Game', 'Player', 'Cups per Game')
+    display_stats(player_stats, 'Name', 'Final Cups/Win', 'Final Cups Hit per Win', 'Player', 'Final Cups/Win')
+    display_stats(player_stats, 'Name', 'Final Cups', 'Total Final Cups', 'Player', 'Final Cups')
 
 
 def summarize_player_stats(df, team_data):
@@ -65,8 +66,13 @@ def summarize_player_stats(df, team_data):
 
     cup_counts = df['Final Cup'].str.split(',', expand=True).stack().str.strip().value_counts()
     new_df['Final Cups'] = new_df['Name'].apply(lambda x: cup_counts.get(x, 0))
+    
+    merged_df = pd.merge(new_df, team_data, on='Team')
+    # Calculate Final Cups/Win
+    merged_df['Final Cups/Win'] = merged_df['Final Cups'] / merged_df['Win'].apply(lambda x: max(1, x))
+    merged_df['Final Cups/Win'] = merged_df['Final Cups/Win'].fillna(0)
 
-    return new_df 
+    return merged_df 
 
 def get_team_name(df, team_data):
     for index, row in df.iterrows():
@@ -103,7 +109,7 @@ def update_team_record(df, team_data):
     team_data.to_csv("team_data.csv", index=False)
     return team_data
 
-def display_player_stats(data, x, y, title, xaxis, yaxis):
+def display_stats(data, x, y, title, xaxis, yaxis):
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x=x, y=y, data=data, ax=ax, order=data.sort_values(by=y, ascending=False)[x])
     ax.set_title(title, color='white')
