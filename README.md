@@ -4,6 +4,9 @@ Welcome to Ruit League, a web application developed for the Tufts Theta Chi Frat
 
 Context: 'Ruit League' is a brotherhood game help each semester for the brothers of Theta Chi. I built this app to help encourage members of the Fraternity to participate as well as to facilinate friendly competition over the course of the semester. The results were amazing as during this season as member engagement improved by 70%.
 
+## Important Note
+All current data and stats are a real reflection of user input from the 2023 season. There is currently no system in place to handle the creation of new seasons or to delete the current data unless done on the backend. Please keep this in mind when playing around with the application.
+
 
 ## Features
 
