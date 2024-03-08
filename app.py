@@ -4,17 +4,20 @@ import matplotlib.pyplot as plt
 from data_entry import show_data_entry
 from explore import show_explore_page
 from add_new_user import show_new_user_page
+from tournament import show_tournament_page
 
 def main():
     st.set_page_config(page_title="Ruit League 2023", page_icon=":trophy:", layout="wide")
 
-    menu = ["Data Entry", "Add New Team", "Data Visualization"]
+    menu = ["Data Entry", "Add New Team", "Data Visualization", "Tournament"]
     choice = st.sidebar.selectbox("Select an option", menu)
 
     if choice == "Data Entry":
         show_data_entry()
     elif choice == "Add New Team":
         show_new_user_page()
+    elif choice == "Tournament":
+        show_tournament_page()
     else:
         show_explore_page()
 
